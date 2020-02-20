@@ -1,0 +1,375 @@
+<!DocTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>视频播放器-欧happy</title>
+    <link rel="stylesheet" href="./font/iconfont.css">
+    <link rel="Shortcut Icon" href="Resource/dog.ico" >
+    <style>
+        body,h1{
+            margin: 0;
+        }
+        body{
+            background-color: #ef6a6c;
+            height: 2000px;
+        }
+        video{
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .player{
+            width: 1130px;/*16:9*/
+            min-height: 730px;
+            margin: 50px auto 0;
+        }
+        .title{
+            width: 100%;
+            height: 48px;
+            background-color: #fff; 
+            font-size: 24px;
+            text-align: center;
+            line-height: 48px;
+        }
+        .time{
+            width: 120px;
+            height: 30px;
+            margin-left: -20px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 30px;
+        }
+        .iconfont{
+            display: block;
+            width: 30px;
+            height: 30px;
+            font-size: 30px;
+        }
+        .content{
+            width: 100%;
+            min-height: 636px;
+            background-color: #000;
+        }
+        .controls{
+            background-color: #fff;
+        }
+        .controls1{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            height: 46px;
+            background-color: #fff;
+        }
+        button{
+           border: none;
+           outline: none;
+           padding: 0;
+           background-color: transparent;
+        }
+        .play,.volume,.openFile{
+            width: 30px;
+            height: 30px;
+            margin: 7px 9px auto;
+            background-size: cover;
+        }
+        .progress{
+            width: 95%;
+            margin: 0 auto;;
+            height: 5px;
+            background-image:linear-gradient(to right, #ccc 0% , #ccc 0%);
+            border-radius:2.5px;
+        }
+        .play{
+            background-image: url("Resource/play.png");  
+        }
+        .openFile{
+            background-image: url("Resource/open.png");  
+        }
+        .volume{
+            position: relative;
+        }
+        .volume>.volumeBtn{
+            width: 100%;
+            height: 100%;
+            background-image: url("Resource/volume-max.png");
+            background-size: cover;
+        }
+        .volume>.volumeBar{
+            display: none;
+            position: absolute;
+            top: -105px;
+            /*left: 10px;*/
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 100px;
+            border-radius: 5px;
+            background-image: linear-gradient(to top,#8cb1b2 50%,#ccc 50%);
+        }
+        .openFile>input{
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+           /* margin:5px  auto;*/
+        }
+        .pic{
+            width: 30px;
+            height: 30px;
+            background-size: cover;
+            background-image: url("Resource/volume-min.png");
+        }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <h1 class="title">欧happy的视频播放器V1.0</h1>
+        <div class="content">
+            <video src="" volume="0.5" onended="video()" preload="metadata" >Your browser does not support the video tag.</video>
+        </div>
+        <div class="controls">
+                <div class="progress"></div>
+                <div class="controls1">
+                    
+                    <button class="play"></button>
+                    <button class="volume">
+                        <div class="volumeBtn"></div>
+                        <div class="volumeBar"></div>
+                    </button>
+                    <p class="time"></p>
+                    <i class="mute iconfont icon-jingyin"></i>
+                    <i class="speed iconfont icon-bofangye_beisubofang"></i>
+                    <div class="openFile">
+                        <input type="file">
+                    </div>
+                    <button class="pic iconfont icon-quanping"></button>
+                    <button class="pip iconfont icon-shoujidaoshouji"></button>
+                </div>
+        </div>
+    </div>
+    <script>
+        /*
+        1、点击播放、暂停按钮logo随之变化
+        2、进度条设置，点击、拖拽
+        3、音量设置，点击、拖拽
+        4、选中文件 播放器文件名设置 触发播放选项
+        */
+        let playBtn = document.querySelector(".play"),
+            volumeBtn = document.querySelector(".volumeBtn"),
+            volumeBar = document.querySelector(".volumeBar"),
+            progressEle = document.querySelector(".progress"),
+            openFileBtn = document.querySelector(".openFile>input"),
+            videoFile = document.querySelector(".content>video"),
+            title =document.querySelector(".title")
+            time =document.querySelector(".time"),
+            pic = document.querySelector(".pic");
+        let playToggle = false;//视频处于关闭状态
+        let loadFile = false;//是否加载了视频
+        playBtn.onclick = function(){
+            if(loadFile){
+                if(playToggle){//视频处于播放状态
+                    
+                    playToggle = false;
+                    videoFile.pause();//视频暂停
+                    playBtn.style.backgroundImage = `url("Resource/play.png")`;//切换播放logo
+                }else{
+                    playToggle=true;//改变状态
+                    videoFile.play();//视频播放
+                    playBtn.style.backgroundImage = `url("Resource/pause.png")`;//切换暂停logo
+                }
+            } 
+        }
+        function video(){
+            alert("谢谢观看");
+        }
+        function getTime(duration, currentTime){
+                // 获取总时长的分钟数 和 秒数
+            let endMunite = parseInt(duration / 60),
+                endSecond = parseInt(duration % 60);
+
+            let currentMunite = parseInt(currentTime / 60),
+                currentSecond = parseInt(currentTime % 60);
+                // 时长小于10，使用 0 站位
+            endMunite = endMunite < 10 ? '0' + endMunite : endMunite;
+            endSecond = endSecond < 10 ? '0' + endSecond : endSecond;
+
+            currentMunite = currentMunite < 10 ? '0' + currentMunite : currentMunite;
+            currentSecond = currentSecond < 10 ? '0' + currentSecond : currentSecond;
+            return currentMunite + ':' + currentSecond + ' / ' + endMunite + ':' + endSecond;
+        };
+        //监听视频播放状态
+        videoFile.addEventListener("timeupdate",function(){
+            let nowTime = this.currentTime;//获取视频当前播放时间
+            let totalTime = this.duration;//视频总时间
+            if(videoFile.currentTime===0){
+                time.innerText="00:00/00:00";
+            }else{
+                time.innerText= getTime(totalTime,nowTime);
+            }
+            let playProgress = (nowTime/totalTime)*100+"%";//进度条百分比
+            progressEle.style.backgroundImage = `linear-gradient(to right,#0086b3 ${playProgress},#ccc ${playProgress})`; 
+        })
+        //监听进度条点击，拖拽事件
+        progressEle.addEventListener("mousedown",progressSet);
+        progressEle.addEventListener("mouseup",progressSet);
+        progressEle.addEventListener("mousemove",progressSet);
+        let progressToggle = false;//进度条开关
+        function progressSet(ev = window.ev){
+            let playProgress;
+            switch(ev.type){
+                case "mousedown":
+                    progressToggle = true;
+                    playProgress = ev.offsetX/progressEle.clientWidth;
+                    videoFile.currentTime = playProgress*videoFile.duration;
+                    progressEle.style.backgroundImage = `linear-gradient(to right, #0086b3 ${playProgress*100}%,#ccc ${playProgress*100}%)`;
+                    break;
+                case "mousemove":
+                    if(progressToggle){
+                        playProgress=ev.offsetX/videoFile.clientWidth;
+                        videoFile.currentTime = playProgress*videoFile.duration;
+                        progressEle.style.backgroundImage = `linear-gradient(to right, #0086b3 ${playProgress*100}%,#ccc ${playProgress*100}%)`;
+                    }
+                    break;
+                case "mouseup":
+                    progressToggle = false;
+                    break;
+            }
+        }
+        const pipBtn = document.querySelector(".pip");
+        pipBtn.hidden=!document.pictureInPictureEnabled||videoFile.disablePictureInPicture;
+        pipBtn.addEventListener("click",function(){
+            if (!document.pictureInPictureElement) {
+                videoFile.requestPictureInPicture()
+                    .catch(error => {
+                        // Video failed to enter Picture-in-Picture mode.
+                    });
+            } else {
+                document.exitPictureInPicture()
+                    .catch(error => {
+                        // Video failed to leave Picture-in-Picture mode.
+                    });
+            }
+        })
+        window.onscroll = function () {
+            //为了保证兼容性，这里取两个值，哪个有值取哪一个
+            //scrollTop就是触发滚轮事件时滚轮的高度
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+           // console.log(scrollTop);
+            if(scrollTop>=500){
+               // videoFile.requestPictureInPicture();
+            }else{
+                //document.exitPictureInPicture();
+            }
+        }
+        //video元素添加事件
+        videoFile.addEventListener('enterpictureinpicture', function (event) {
+            console.log('Video entered Picture-in-Picture mode.');
+        });
+        //video元素添加事件
+        videoFile.addEventListener('leavepictureinpicture', function (e) {
+                console.log('Video left Picture-in-Picture mode.');
+        });
+        //打开文件事件
+        openFileBtn.onchange=function(){
+            let nowVideo=this;
+            let url=window.URL.createObjectURL(nowVideo.files[0])+"#t=1";
+            videoFile.setAttribute("src",url);
+            title.innerText=nowVideo.files[0].name.split(".")[0];
+            let htmlTitle =document.querySelector("title");
+            htmlTitle.innerText=nowVideo.files[0].name.split(".")[0];
+            progressEle.style.backgroundImage=`linear-gradient(to right, #ccc 0% , #ccc 0%)`;
+            loadFile=true;
+            playToggle=false;
+            playBtn.style.backgroundImage = `url("Resource/play.png")`;//切换播放logo
+        }
+        //音量控制事件
+        volumeBar.addEventListener("mousedown",volumeSet);
+        volumeBar.addEventListener("mouseup",volumeSet);
+        volumeBar.addEventListener("mousemove",volumeSet);
+        let volumeBarToggle = false;//进度条开关
+        function volumeSet(ev = window.ev){
+            let volumeValue;
+            switch(ev.type){
+                case "mousedown":
+                    volumeBarToggle = true;
+                    volumeValue = 1-ev.offsetY/volumeBar.clientHeight;
+                    videoFile.volume = volumeValue;
+                    volumeBar.style.backgroundImage = `linear-gradient(to top, #8cb1b2 ${volumeValue*100}%,#ccc ${volumeValue*100}%)`;
+                    break;
+                case "mousemove":
+                    if(volumeBarToggle){
+                        volumeValue = 1-ev.offsetY/volumeBar.clientHeight;
+                        videoFile.volume = volumeValue;
+                        volumeBar.style.backgroundImage = `linear-gradient(to top, #8cb1b2 ${volumeValue*100}%,#ccc ${volumeValue*100}%)`;
+                    }
+                    break;
+                case "mouseup":
+                    volumeBarToggle = false;
+                    break;
+            }
+        }
+        let volumeToggle=false;
+        volumeBtn.onclick=function(){
+            if(!volumeToggle){
+                volumeToggle=true;
+                volumeBar.style.display="block";
+            }else{
+                volumeToggle=false;
+                volumeBar.style.display="none";
+            }
+        }
+        // 全屏切换
+        let contentVideo = document.querySelector(".player");
+        var isFullscreen = false;
+            pic.addEventListener('click', function () {
+               
+                if (!isFullscreen) {
+                   if (contentVideo.requestFullscreen) {
+                        contentVideo.requestFullscreen();
+                   } else if (contentVideo.mozRequestFullScreen) {
+                        contentVideo.mozRequestFullScreen(); // Firefox
+                    } else if (contentVideo.webkitRequestFullscreen) {
+                        contentVideo.webkitRequestFullscreen(); // Chrome and Safari
+                    }
+                    //videoFile.controls=false;
+                    isFullscreen = true;
+                } else {
+                    if (document.cancelFullScreen) {
+                        document.cancelFullScreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitCancelFullScreen) {
+                        document.webkitCancelFullScreen();
+                    }
+                    isFullscreen = false;
+                }
+            });
+        /*pic.onclick=function(){
+            if (!isFullscreen) {
+                isFullscreen = true;
+                contentVideo.webkitRequestFullscreen(); // Chrome and Safari
+            }else{
+                isFullscreen = false;
+                document.webkitCancelFullScreen();
+            }
+        }*/
+        let mute=document.querySelector(".mute"),
+            speed=document.querySelector(".speed");
+        let muteToggle=false;
+        mute.addEventListener("click",function(){
+            if(!muteToggle){
+                videoFile.muted=true;
+                muteToggle=true;
+            }else{
+                videoFile.muted=false;
+            muteToggle=false;
+            }
+        },"false");
+        speed.onclick=function(){
+            videoFile.playbackRate=2;
+        }  
+    </script>
+</body>
+</html>
